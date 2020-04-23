@@ -1,2 +1,5 @@
 # PassingDataFromClassToSyclKernel
 This code shows how we can pass data member of class to a kernel.
+
+# Details
+d_A is a device pointer. When accessing the class member data within the class member functions, the "this" pointer is passed implicitly and that is used to access the object members. So in this case, since d_A is a class member, any reference to d_A inside the class member function will be resolved as this->d_A. The idea is, "this" pointer points to the memory where the class object is located and this class object is created on CPU memory. Hence when we try to use d_A inside a DPC++ kernel which is supposed to run inside a GPU, the expression "this->d_A" is invalid since "this" is invalid pointer from GPU side. The same code works on the CPU side since "this" pointer is valid pointer when the code executes on CPU. Below is a way to work around this issue by capturing the "this->d_A - device pointer" in a local variable in the kernel function (also I have modified the code to introduce newer syntax for USM which decreases the code verbosity)
